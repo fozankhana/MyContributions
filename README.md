@@ -4,6 +4,35 @@ A log of open source contributions.
 
 ---
 
+## [projectsend](https://github.com/projectsend/projectsend) — Security vulnerability fixes & code quality improvements
+
+**Fork:** https://github.com/fozankhana/projectsend  
+**Commit:** 6047e5c  
+**Date:** 2026-06-06
+
+### What was fixed
+
+**Security vulnerabilities:**
+
+| Severity | File | Issue Fixed |
+|----------|------|-------------|
+| Critical | `includes/Classes/Auth.php` | **LDAP Injection** — email was interpolated directly into LDAP filter `(mail=$email)`; fixed with `ldap_escape($email, null, LDAP_ESCAPE_FILTER)` |
+| High | `includes/Classes/Download.php`, `includes/functions.php` | **CRLF Header Injection** — `filename_original` written into `Content-Disposition` header without stripping `\r\n`; fixed by stripping CR/LF in `sanitize_filename_for_download()` and at all inline header sites |
+| High | `includes/functions.php` | **IP Spoofing bypasses brute-force** — `get_client_ip()` trusted `X-Forwarded-For` over `REMOTE_ADDR`, letting attackers forge any IP; rewritten to always return `REMOTE_ADDR` first |
+| Medium | `assets/src/js/parts/side_modal.js` | **DOM-based XSS** — `setTitle()` used `innerHTML`; switched to `textContent` |
+| Medium | `includes/Classes/Users.php` | **Weak hash validation** — `strlen($hash) >= 20` could accept broken hashes; replaced with `password_get_info()` algo check |
+| Medium | `includes/Classes/BruteForceBlock.php` | **SQL string concatenation** — `time_frame_minutes` concatenated into both SELECT and DELETE queries; cast to `(int)` before interpolation |
+| Low | `includes/Classes/RememberMe.php` | **Dead security enforcement** — token revocation on user-agent mismatch was logged but commented out; enabled `revokeToken()` + `return false` |
+
+**Code quality:**
+
+| File | Change |
+|------|--------|
+| `includes/functions.php` | Removed `shell_exec`/`exec` path from `get_real_size()`; `filesize()` is sufficient. Removed orphaned `isEnabled()` helper. |
+| `includes/core.update.php` | Deleted commented-out `mysql_query()`/`mysql_fetch_array()` block (functions removed in PHP 7, unreachable dead code) |
+
+---
+
 ## [system-design-primer](https://github.com/donnemartin/system-design-primer) — Bug fixes & translation sync
 
 **Fork:** https://github.com/fozankhana/system-design-primer  
